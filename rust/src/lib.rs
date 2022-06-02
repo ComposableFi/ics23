@@ -3,12 +3,11 @@
 
 extern crate alloc;
 extern crate core;
-#[cfg(not(feature = "std"))]
-extern crate sp_std as std;
 
 mod api;
 mod compress;
 mod helpers;
+mod host_functions;
 mod ics23;
 mod ops;
 mod verify;
