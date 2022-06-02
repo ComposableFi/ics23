@@ -4,10 +4,10 @@
 use anyhow::{bail, ensure};
 
 use crate::helpers::Result;
+use crate::host_functions::HostFunctionsProvider;
 use crate::ics23;
 use crate::ops::{apply_inner, apply_leaf};
 use sp_std::vec::Vec;
-use crate::host_functions::HostFunctionsProvider;
 
 pub type CommitmentRoot = Vec<u8>;
 
@@ -57,7 +57,9 @@ pub fn verify_non_existence<H: HostFunctionsProvider>(
 // Calculate determines the root hash that matches the given proof.
 // You must validate the result is what you have in a header.
 // Returns error if the calculations cannot be performed.
-pub fn calculate_existence_root<H: HostFunctionsProvider>(proof: &ics23::ExistenceProof) -> Result<CommitmentRoot> {
+pub fn calculate_existence_root<H: HostFunctionsProvider>(
+    proof: &ics23::ExistenceProof,
+) -> Result<CommitmentRoot> {
     ensure!(!proof.key.is_empty(), "Existence proof must have key set");
     ensure!(
         !proof.value.is_empty(),
@@ -316,11 +318,11 @@ fn right_branches_are_empty(spec: &ics23::InnerSpec, op: &ics23::InnerOp) -> Res
 mod tests {
     use super::*;
     use crate::api;
+    use crate::host_functions::test_helper::HostFunctionsManager;
     use crate::ics23::{ExistenceProof, HashOp, InnerOp, InnerSpec, LeafOp, LengthOp, ProofSpec};
     use sp_std::collections::btree_map::BTreeMap as HashMap;
     #[cfg(not(feature = "std"))]
     use sp_std::prelude::*;
-    use crate::host_functions::test_helper::HostFunctionsManager;
 
     #[test]
     fn calculate_root_from_leaf() {

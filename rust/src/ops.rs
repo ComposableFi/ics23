@@ -14,7 +14,11 @@ pub fn apply_inner<H: HostFunctionsProvider>(inner: &InnerOp, child: &[u8]) -> R
 }
 
 // apply_leaf will take a key, value pair and a LeafOp and return a LeafHash
-pub fn apply_leaf<H: HostFunctionsProvider>(leaf: &LeafOp, key: &[u8], value: &[u8]) -> Result<Hash> {
+pub fn apply_leaf<H: HostFunctionsProvider>(
+    leaf: &LeafOp,
+    key: &[u8],
+    value: &[u8],
+) -> Result<Hash> {
     let mut hash = leaf.prefix.clone();
     let prekey = prepare_leaf_data::<H>(leaf.prehash_key(), leaf.length(), key)?;
     hash.extend(prekey);
@@ -23,7 +27,11 @@ pub fn apply_leaf<H: HostFunctionsProvider>(leaf: &LeafOp, key: &[u8], value: &[
     Ok(do_hash::<H>(leaf.hash(), &hash))
 }
 
-fn prepare_leaf_data<H: HostFunctionsProvider>(prehash: HashOp, length: LengthOp, data: &[u8]) -> Result<Hash> {
+fn prepare_leaf_data<H: HostFunctionsProvider>(
+    prehash: HashOp,
+    length: LengthOp,
+    data: &[u8],
+) -> Result<Hash> {
     ensure!(!data.is_empty(), "Input to prepare_leaf_data missing");
     let h = do_hash::<H>(prehash, data);
     do_length(length, &h)
@@ -36,9 +44,7 @@ fn do_hash<H: HostFunctionsProvider>(hash: HashOp, data: &[u8]) -> Hash {
         HashOp::Sha512 => Hash::from(H::sha2_512(data).as_slice()),
         HashOp::Keccak => Hash::from(H::sha3_512(data).as_slice()),
         HashOp::Ripemd160 => Hash::from(H::ripemd160(data).as_slice()),
-        HashOp::Bitcoin => {
-            Hash::from(H::ripemd160(H::sha2_256(data).as_slice()).as_slice())
-        }
+        HashOp::Bitcoin => Hash::from(H::ripemd160(H::sha2_256(data).as_slice()).as_slice()),
         HashOp::Sha512256 => Hash::from(H::sha2_512_truncated(data).as_slice()),
     }
 }
@@ -74,8 +80,8 @@ fn proto_len(length: usize) -> Result<Hash> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use sp_std::vec::Vec;
     use crate::host_functions::test_helper::HostFunctionsManager;
+    use sp_std::vec::Vec;
 
     fn decode(input: &str) -> Vec<u8> {
         hex::decode(input).unwrap()

@@ -20,10 +20,10 @@ pub trait HostFunctionsProvider {
 
 #[cfg(test)]
 pub mod test_helper {
+    use crate::host_functions::HostFunctionsProvider;
     use ripemd160::Ripemd160;
     use sha2::{Digest, Sha512, Sha512Trunc256};
     use sha3::Sha3_512;
-    use crate::host_functions::HostFunctionsProvider;
 
     pub struct HostFunctionsManager;
     impl HostFunctionsProvider for HostFunctionsManager {

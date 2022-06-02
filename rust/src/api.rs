@@ -1,4 +1,5 @@
 use sp_std::collections::btree_map::BTreeMap;
+use sp_std::vec;
 
 use crate::compress::{decompress, is_compressed};
 use crate::host_functions::HostFunctionsProvider;
@@ -231,15 +232,15 @@ pub fn smt_spec() -> ics23::ProofSpec {
 mod tests {
     use super::*;
 
-    #[cfg(feature = "std")]
-    use std::fs::File;
-    #[cfg(feature = "std")]
-    use std::io::prelude::*;
     use alloc::string::String;
     use anyhow::{bail, ensure};
     use prost::Message;
     use serde::Deserialize;
     use sp_std::vec::Vec;
+    #[cfg(feature = "std")]
+    use std::fs::File;
+    #[cfg(feature = "std")]
+    use std::io::prelude::*;
 
     use crate::compress::compress;
     use crate::helpers::Result;
@@ -287,11 +288,14 @@ mod tests {
         let (proof, data) = load_file(filename)?;
 
         if let Some(value) = data.value {
-            let valid = verify_membership::<HostFunctionsManager>(&proof, spec, &data.root, &data.key, &value);
+            let valid = verify_membership::<HostFunctionsManager>(
+                &proof, spec, &data.root, &data.key, &value,
+            );
             ensure!(valid, "invalid test vector");
             Ok(())
         } else {
-            let valid = verify_non_membership::<HostFunctionsManager>(&proof, spec, &data.root, &data.key);
+            let valid =
+                verify_non_membership::<HostFunctionsManager>(&proof, spec, &data.root, &data.key);
             ensure!(valid, "invalid test vector");
             Ok(())
         }
@@ -461,18 +465,23 @@ mod tests {
         data: &RefData,
     ) -> Result<()> {
         if let Some(value) = &data.value {
-            let valid = verify_membership::<HostFunctionsManager>(proof, spec, &data.root, &data.key, value);
+            let valid = verify_membership::<HostFunctionsManager>(
+                proof, spec, &data.root, &data.key, value,
+            );
             ensure!(valid, "invalid test vector");
             let mut items = BTreeMap::new();
             items.insert(data.key.as_slice(), value.as_slice());
-            let valid = verify_batch_membership::<HostFunctionsManager>(proof, spec, &data.root, items);
+            let valid =
+                verify_batch_membership::<HostFunctionsManager>(proof, spec, &data.root, items);
             ensure!(valid, "invalid test vector");
             Ok(())
         } else {
-            let valid = verify_non_membership::<HostFunctionsManager>(proof, spec, &data.root, &data.key);
+            let valid =
+                verify_non_membership::<HostFunctionsManager>(proof, spec, &data.root, &data.key);
             ensure!(valid, "invalid test vector");
             let keys = &[data.key.as_slice()];
-            let valid = verify_batch_non_membership::<HostFunctionsManager>(proof, spec, &data.root, keys);
+            let valid =
+                verify_batch_non_membership::<HostFunctionsManager>(proof, spec, &data.root, keys);
             ensure!(valid, "invalid test vector");
             Ok(())
         }
