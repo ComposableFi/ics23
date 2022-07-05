@@ -321,8 +321,6 @@ mod tests {
     use crate::host_functions::host_functions_impl::HostFunctionsManager;
     use crate::ics23::{ExistenceProof, HashOp, InnerOp, InnerSpec, LeafOp, LengthOp, ProofSpec};
     use alloc::collections::btree_map::BTreeMap as HashMap;
-    #[cfg(not(feature = "std"))]
-    use std::prelude::*;
 
     #[test]
     fn calculate_root_from_leaf() {
